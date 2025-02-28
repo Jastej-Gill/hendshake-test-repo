@@ -105,8 +105,6 @@ const Form = () => {
         accessibility: 0.5
       });
 
-      // Create toast
-      alert("Form submitted successfully");
     }
   };
 
@@ -171,6 +169,7 @@ const Form = () => {
       {/**Tasks display */}
       <div className="mt-8">
           <h2 className="text-center">Saved Tasks</h2>
+          <h3 className="text-center">Task count: {tasks.length}</h3>
           {/**List of task entries with associated delete button */}
           <ul>
             {
