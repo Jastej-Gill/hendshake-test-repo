@@ -1,101 +1,118 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+interface FormData {
+  activity: string;
+  price: number;
+  activityType: string;
+  bookingReq: boolean;
+  accessibility: number;
+}
+
+const activityTypes = [
+  "education",
+  "recreational",
+  "social",
+  "diy",
+  "charity",
+  "cooking",
+  "relaxation",
+  "music",
+  "busywork"
+];
+
+const Form = () => {
+  const [formData, setFormData] = useState<FormData>({
+    activity: "",
+    price: 0,
+    activityType: "education",
+    bookingReq: false,
+    accessibility: 0.5
+  });
+
+  const [errors, setErrors] = useState<Partial<FormData>>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type, checked } = e.target as HTMLInputElement;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "number" || type === "range" ? Number(value) :
+              type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const validateForm = (): boolean => {
+    let newErrors: Partial<FormData> = {};
+
+    if (!formData.activity) newErrors.activity = "Activity is required";
+    if (!formData.activityType) newErrors.activityType = "Activity type is required";
+    if (formData.price <= 0) newErrors.price = "Enter a valid price greater than 0";
+    if (formData.accessibility < 0 || formData.accessibility > 1) {
+      newErrors.accessibility = "Accessibility must be between 0.0 and 1.0";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (validateForm()) {
+      console.log("Form submitted:", formData);
+      alert("Form submitted successfully");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="form-container py-16">
+      <h2 className="text-center">Activity Form</h2>
+
+      <div className="form-group">
+        <label>Activity</label>
+        <input type="text" name="activity" value={formData.activity} onChange={handleChange} className="form-input" />
+        {errors.activity && <p className="form-error">{errors.activity}</p>}
+      </div>
+
+      <div className="form-group">
+        <label>Activity Type</label>
+        <select name="activityType" value={formData.activityType} onChange={handleChange} className="form-input">
+          {activityTypes.map((type) => (
+            <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+          ))}
+        </select>
+        {errors.activityType && <p className="form-error">{errors.activityType}</p>}
+      </div>
+
+      <div className="form-group">
+        <label>Price (USD)</label>
+        <input type="number" name="price" value={formData.price} onChange={handleChange} step="0.01" min="0" className="form-input" />
+        {errors.price && <p className="form-error">{errors.price}</p>}
+      </div>
+
+      <div className="form-group">
+        <label>Accessibility (0.0 - 1.0)</label>
+        <input type="range" name="accessibility" min="0" max="1" step="0.1" value={formData.accessibility} onChange={handleChange} className="form-range" />
+        <p className="text-white">Selected: {formData.accessibility.toFixed(1)}</p>
+        {errors.accessibility && <p className="form-error">{errors.accessibility}</p>}
+      </div>
+
+      <div className="form-group flex items-center">
+        <input type="checkbox" name="bookingReq" checked={formData.bookingReq} onChange={handleChange} className="form-checkbox" />
+        <label className="ml-2">Booking Required</label>
+      </div>
+
+      <button type="submit" className="form-button">Submit</button>
+    </form>
+  );
+};
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className="container">
+      <h1>To Do List</h1>
+      <Form />
     </div>
   );
 }
