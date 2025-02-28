@@ -11,6 +11,7 @@ interface FormData {
   accessibility: number;
 }
 
+// Activity dropdown options
 const activityTypes = [
   "education",
   "recreational",
@@ -23,7 +24,10 @@ const activityTypes = [
   "busywork"
 ];
 
+// Form object
 const Form = () => {
+
+  // init fields
   const [formData, setFormData] = useState<Omit<FormData, "id">>({
     activity: "",
     price: 0,
@@ -32,9 +36,13 @@ const Form = () => {
     accessibility: 0.5
   });
 
+  // Array of tasks added
   const [tasks, setTasks] = useState<FormData[]>([]);
+  
+  // Object containing form input errors
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
+  // Load tasks on component mount
   useEffect(() => {
     const savedTasks = localStorage.getItem("tasks");
 
@@ -43,10 +51,12 @@ const Form = () => {
     }
   }, [])
 
+  // Update tasks display when tasks array updated
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks])
 
+  // Form input change handler
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
 
@@ -57,6 +67,7 @@ const Form = () => {
     }));
   };
 
+  // Validate form inputs and update error object
   const validateForm = (): boolean => {
     let newErrors: Partial<FormData> = {};
 
@@ -71,16 +82,21 @@ const Form = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Form submission handler
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // If no errors
     if (validateForm()) {
       const newTask: FormData = {
         id: Date.now(),
         ...formData,
       };
-
+      
+      // Add new tasks to array of tasks
       setTasks([...tasks, newTask]);
 
+      // Reset form fields
       setFormData({
         activity: "",
         price: 0,
@@ -89,27 +105,34 @@ const Form = () => {
         accessibility: 0.5
       });
 
-
+      // Create toast
       alert("Form submitted successfully");
     }
   };
 
+  // Remove task button handler
   const handleDelete = (id: number) => {
+    // Filter out deleted task from task array
     const updatedTasks = tasks.filter((task) => task.id !== id);
+
+    // Update task array with removed task filtered out
     setTasks(updatedTasks);
   }
 
   return (
     <div>
+      {/**Form to add task */}
       <form onSubmit={handleSubmit} className="form-container py-16">
         <h2 className="text-center">Activity Form</h2>
-
+        
+        {/**Activity name field */}
         <div className="form-group">
           <label>Activity</label>
           <input type="text" name="activity" value={formData.activity} onChange={handleChange} className="form-input" />
           {errors.activity && <p className="form-error">{errors.activity}</p>}
         </div>
 
+        {/**Activity type dropdown */}
         <div className="form-group">
           <label>Activity Type</label>
           <select name="activityType" value={formData.activityType} onChange={handleChange} className="form-input">
@@ -120,12 +143,14 @@ const Form = () => {
           {errors.activityType && <p className="form-error">{errors.activityType}</p>}
         </div>
 
+        {/**Activity price field */}
         <div className="form-group">
           <label>Price</label>
           <input type="number" name="price" value={formData.price} onChange={handleChange} step="0.01" min="0" className="form-input" />
           {errors.price && <p className="form-error">{errors.price}</p>}
         </div>
 
+        {/**Acessibility range slider */}
         <div className="form-group">
           <label>Accessibility (0.0 - 1.0)</label>
           <input type="range" name="accessibility" min="0" max="1" step="0.1" value={formData.accessibility} onChange={handleChange} className="form-range" />
@@ -133,15 +158,20 @@ const Form = () => {
           {errors.accessibility && <p className="form-error">{errors.accessibility}</p>}
         </div>
 
+        {/**Booking required checkbox */}
         <div className="form-group flex items-center">
           <input type="checkbox" name="bookingReq" checked={formData.bookingReq} onChange={handleChange} className="form-checkbox" />
           <label className="ml-2">Booking Required</label>
         </div>
 
+        {/**Form submit button */}
         <button type="submit" className="form-button">Submit</button>
       </form>
+
+      {/**Tasks display */}
       <div className="mt-8">
           <h2 className="text-center">Saved Tasks</h2>
+          {/**List of task entries with associated delete button */}
           <ul>
             {
               tasks.map((task) => (
